@@ -25,12 +25,13 @@ async function run() {
   try {
     await client.connect();
     const toolsCollection = client.db("toolsplazadb").collection("tools");
+    const ordersCollection = client.db("toolsplazadb").collection("orders");
 
     // geting all tools
     app.get("/tools", async (req, res) => {
       const query = {};
       const cursor = toolsCollection.find(query);
-      const result = await cursor.toArray();
+      const result = (await cursor.toArray()).reverse();
       res.send(result);
     });
 
@@ -40,6 +41,13 @@ async function run() {
       const query = { _id: ObjectId(id) };
       const tool = await toolsCollection.findOne(query);
       res.send(tool);
+    });
+
+    app.post("/orders", async (req, res) => {
+      const orders = req.body;
+      console.log(orders);
+      const result = await ordersCollection.insertOne(orders);
+      return res.send(result);
     });
   } finally {
     // await client.close();
