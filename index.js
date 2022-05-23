@@ -4,6 +4,7 @@ const port = process.env.PORT || 5000;
 const app = express();
 
 require("dotenv").config();
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 // middleware
@@ -34,6 +35,24 @@ async function run() {
       const result = (await cursor.toArray()).reverse();
       res.send(result);
     });
+
+    // stripe payment intent
+    app.post("/create-payment-intent", async (req, res) => {
+      const product = req.body;
+      const price = product.price;
+      const amount = price * 100;
+
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: "usd",
+        payment_method_types: ["card"],
+      });
+
+      res.send({
+        clientSecret: paymentIntent.client_secret,
+      });
+    });
+    // stripe payment intent end
 
     // geting tools by id
     app.get("/tools/:id", async (req, res) => {
