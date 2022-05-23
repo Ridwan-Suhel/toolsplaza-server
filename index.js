@@ -43,11 +43,20 @@ async function run() {
       res.send(tool);
     });
 
+    //posting what user orders on mongodb
     app.post("/orders", async (req, res) => {
       const orders = req.body;
       console.log(orders);
       const result = await ordersCollection.insertOne(orders);
       return res.send(result);
+    });
+
+    //geting specific data from orders using email query
+    app.get("/orders/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const orders = (await ordersCollection.find(query).toArray()).reverse();
+      res.send(orders);
     });
   } finally {
     // await client.close();
