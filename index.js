@@ -27,6 +27,7 @@ async function run() {
     await client.connect();
     const toolsCollection = client.db("toolsplazadb").collection("tools");
     const ordersCollection = client.db("toolsplazadb").collection("orders");
+    const paymentCollection = client.db("toolsplazadb").collection("payments");
 
     // geting all tools
     app.get("/tools", async (req, res) => {
@@ -85,6 +86,26 @@ async function run() {
       const query = { _id: ObjectId(id) };
       const order = await ordersCollection.findOne(query);
       res.send(order);
+    });
+
+    //updating data after successfully stripe card payment
+    app.patch("/orders/order/:id", async (req, res) => {
+      const id = req.params.id;
+      const payment = req.body;
+      const filter = { _id: ObjectId(id) };
+      const updatedDoc = {
+        $set: {
+          paid: true,
+          transactionId: payment.transactionId,
+        },
+      };
+      const result = await paymentCollection.insertOne(payment);
+      const updatedOrders = await ordersCollection.updateOne(
+        filter,
+        updatedDoc
+      );
+
+      res.send(updatedDoc);
     });
   } finally {
     // await client.close();
