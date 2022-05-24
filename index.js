@@ -151,6 +151,14 @@ async function run() {
       );
       res.send(result);
     });
+
+    //geting specific user information from userinfocollection using email params
+    app.get("/userinfo/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const result = await userInfoCollection.findOne(query);
+      res.send(result);
+    });
   } finally {
     // await client.close();
   }
