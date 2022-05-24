@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const jwt = require("jsonwebtoken");
 const port = process.env.PORT || 5000;
 const app = express();
 
@@ -30,6 +31,7 @@ async function run() {
     const paymentCollection = client.db("toolsplazadb").collection("payments");
     const reviewCollection = client.db("toolsplazadb").collection("reviews");
     const userInfoCollection = client.db("toolsplazadb").collection("userinfo");
+    const usersCollection = client.db("toolsplazadb").collection("users");
 
     // geting all tools
     app.get("/tools", async (req, res) => {
@@ -37,6 +39,26 @@ async function run() {
       const cursor = toolsCollection.find(query);
       const result = (await cursor.toArray()).reverse();
       res.send(result);
+    });
+
+    //geting users
+    app.put("/user/:email", async (req, res) => {
+      const email = req.params.email;
+      const user = req.body;
+      const filter = { email: email };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: user,
+      };
+      const result = await usersCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      var token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: "1d",
+      });
+      res.send({ result, token });
     });
 
     // stripe payment intent
