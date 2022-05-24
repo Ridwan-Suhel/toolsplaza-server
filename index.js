@@ -28,6 +28,7 @@ async function run() {
     const toolsCollection = client.db("toolsplazadb").collection("tools");
     const ordersCollection = client.db("toolsplazadb").collection("orders");
     const paymentCollection = client.db("toolsplazadb").collection("payments");
+    const reviewCollection = client.db("toolsplazadb").collection("reviews");
 
     // geting all tools
     app.get("/tools", async (req, res) => {
@@ -69,6 +70,22 @@ async function run() {
       // console.log(orders);
       const result = await ordersCollection.insertOne(orders);
       return res.send(result);
+    });
+
+    //posting user review to database
+    app.post("/reviews", async (req, res) => {
+      const review = req.body;
+      console.log(review);
+      const result = await reviewCollection.insertOne(review);
+      return res.send(result);
+    });
+
+    // geting all reviews
+    app.get("/reviews", async (req, res) => {
+      const query = {};
+      const cursor = reviewCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
     });
 
     // deleting orders by id
