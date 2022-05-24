@@ -29,6 +29,7 @@ async function run() {
     const ordersCollection = client.db("toolsplazadb").collection("orders");
     const paymentCollection = client.db("toolsplazadb").collection("payments");
     const reviewCollection = client.db("toolsplazadb").collection("reviews");
+    const userInfoCollection = client.db("toolsplazadb").collection("userinfo");
 
     // geting all tools
     app.get("/tools", async (req, res) => {
@@ -131,6 +132,24 @@ async function run() {
       );
 
       res.send(updatedDoc);
+    });
+
+    //updating user information data to the database
+    app.put("/userinfo/:email", async (req, res) => {
+      const email = req.params.email;
+      const userinfo = req.body;
+      console.log(userinfo);
+      const filter = { email: email };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: userinfo,
+      };
+      const result = await userInfoCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send(result);
     });
   } finally {
     // await client.close();
