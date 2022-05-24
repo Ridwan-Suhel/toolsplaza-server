@@ -58,6 +58,12 @@ async function run() {
       res.send(result);
     });
 
+    // geting all users
+    app.get("/user", verifyJWT, async (req, res) => {
+      const users = await usersCollection.find().toArray();
+      res.send(users);
+    });
+
     //geting users
     app.put("/user/:email", async (req, res) => {
       const email = req.params.email;
@@ -76,6 +82,25 @@ async function run() {
         expiresIn: "1d",
       });
       res.send({ result, token });
+    });
+
+    //making admin api
+    app.put("/user/admin/:email", verifyJWT, async (req, res) => {
+      const email = req.params.email;
+      const requester = req.decoded.email;
+      const requesterAccount = await usersCollection.findOne({
+        email: requester,
+      });
+      if (requesterAccount.role === "admin") {
+        const filter = { email: email };
+        const updateDoc = {
+          $set: { role: "admin" },
+        };
+        const result = await usersCollection.updateOne(filter, updateDoc);
+        res.send(result);
+      } else {
+        res.status(403).send({ message: "Forbidden Access." });
+      }
     });
 
     // stripe payment intent
