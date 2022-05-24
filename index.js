@@ -23,6 +23,23 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 
+// middletear
+function verifyJWT(req, res, next) {
+  const authHeader = req?.headers?.authorization;
+  if (!authHeader) {
+    return res.status(401).send({ message: "Unauthorized Access" });
+  }
+  const token = authHeader.split(" ")[1];
+
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
+    if (err) {
+      res.status(403).send({ message: "Forbidden Access" });
+    }
+    req.decoded = decoded;
+    next();
+  });
+}
+
 async function run() {
   try {
     await client.connect();
@@ -120,11 +137,16 @@ async function run() {
     });
 
     //geting specific data from orders using email params
-    app.get("/orders/:email", async (req, res) => {
+    app.get("/orders/:email", verifyJWT, async (req, res) => {
       const email = req.params.email;
-      const query = { email: email };
-      const orders = (await ordersCollection.find(query).toArray()).reverse();
-      res.send(orders);
+      const decodedEmail = req?.decoded?.email;
+      if (email === decodedEmail) {
+        const query = { email: email };
+        const orders = (await ordersCollection.find(query).toArray()).reverse();
+        return res.send(orders);
+      } else {
+        return res.status(403).send({ message: "Forbidden Access." });
+      }
     });
 
     // geting orders collection for specific user ordered id for payment
