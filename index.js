@@ -65,6 +65,14 @@ async function run() {
       res.send(result);
     });
 
+    // deleting tools by id for manage all products
+    app.delete("/tools/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await toolsCollection.deleteOne(query);
+      res.send(result);
+    });
+
     // geting all users
     app.get("/user", verifyJWT, async (req, res) => {
       const users = await usersCollection.find().toArray();
