@@ -152,6 +152,24 @@ async function run() {
       return res.send(result);
     });
 
+    //updating api for user pending status to shipped
+    app.put("/order/:id", async (req, res) => {
+      const id = req.params.id;
+      const order = req.body;
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: order,
+      };
+      const result = await ordersCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+
+      res.send(result);
+    });
+
     //posting user review to database
     app.post("/reviews", async (req, res) => {
       const review = req.body;
@@ -220,7 +238,7 @@ async function run() {
 
     // geting all orders
     app.get("/orders", async (req, res) => {
-      const orders = await ordersCollection.find().toArray();
+      const orders = (await ordersCollection.find().toArray()).reverse();
       res.send(orders);
     });
 
