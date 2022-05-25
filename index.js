@@ -50,6 +50,13 @@ async function run() {
     const userInfoCollection = client.db("toolsplazadb").collection("userinfo");
     const usersCollection = client.db("toolsplazadb").collection("users");
 
+    //creating tools api
+    app.post("/tools", verifyJWT, async (req, res) => {
+      const tool = req.body;
+      const result = await toolsCollection.insertOne(tool);
+      res.send(result);
+    });
+
     // geting all tools
     app.get("/tools", async (req, res) => {
       const query = {};
@@ -62,6 +69,14 @@ async function run() {
     app.get("/user", verifyJWT, async (req, res) => {
       const users = await usersCollection.find().toArray();
       res.send(users);
+    });
+
+    //get admins api
+    app.get("/admin/:email", async (req, res) => {
+      const email = req.params.email;
+      const user = await usersCollection.findOne({ email: email });
+      const isAdmin = user.role === "admin";
+      res.send({ admin: isAdmin });
     });
 
     //geting users
@@ -121,7 +136,7 @@ async function run() {
     });
     // stripe payment intent end
 
-    // geting tools by id
+    // geting tools by id (for purchasing single tools)
     app.get("/tools/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
