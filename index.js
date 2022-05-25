@@ -73,6 +73,23 @@ async function run() {
       res.send(result);
     });
 
+    //updating tools after purchasing/placing an order
+    app.put("/tools/:id", async (req, res) => {
+      const id = req.params.id;
+      const tool = req.body;
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: tool,
+      };
+      const result = await toolsCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send(result);
+    });
+
     // geting all users
     app.get("/user", verifyJWT, async (req, res) => {
       const users = await usersCollection.find().toArray();
