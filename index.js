@@ -218,6 +218,12 @@ async function run() {
       res.send(updatedDoc);
     });
 
+    // geting all orders
+    app.get("/orders", async (req, res) => {
+      const orders = await ordersCollection.find().toArray();
+      res.send(orders);
+    });
+
     //updating user information data to the database
     app.put("/userinfo/:email", async (req, res) => {
       const email = req.params.email;
