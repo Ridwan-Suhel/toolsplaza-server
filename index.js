@@ -262,9 +262,22 @@ async function run() {
     });
 
     // geting all orders
+    // app.get("/orders", async (req, res) => {
+    //   const orders = (await ordersCollection.find().toArray()).reverse();
+    //   res.send(orders);
+    // });
+
+    // searching product bt req query
     app.get("/orders", async (req, res) => {
-      const orders = (await ordersCollection.find().toArray()).reverse();
-      res.send(orders);
+      const search = req.query.search;
+      const result = (
+        await ordersCollection
+          .find({
+            $or: [{ toolsName: { $regex: `${search}`, $options: "i" } }],
+          })
+          .toArray()
+      ).reverse();
+      res.send(result);
     });
 
     //updating user information data to the database
