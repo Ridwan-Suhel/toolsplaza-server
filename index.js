@@ -58,15 +58,15 @@ async function run() {
     });
 
     // geting all tools code
-    // app.get("/tools", async (req, res) => {
-    //   const query = {};
-    //   const cursor = toolsCollection.find(query);
-    //   const result = (await cursor.toArray()).reverse();
-    //   res.send(result);
-    // });
+    app.get("/tools", async (req, res) => {
+      const query = {};
+      const cursor = toolsCollection.find(query);
+      const result = (await cursor.toArray()).reverse();
+      res.send(result);
+    });
 
     // geting all tools by query search
-    app.get("/tools", async (req, res) => {
+    app.get("/searchtools", async (req, res) => {
       const search = req.query.search;
       const result = (
         await toolsCollection
