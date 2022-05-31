@@ -57,11 +57,24 @@ async function run() {
       res.send(result);
     });
 
-    // geting all tools
+    // geting all tools code
+    // app.get("/tools", async (req, res) => {
+    //   const query = {};
+    //   const cursor = toolsCollection.find(query);
+    //   const result = (await cursor.toArray()).reverse();
+    //   res.send(result);
+    // });
+
+    // geting all tools by query search
     app.get("/tools", async (req, res) => {
-      const query = {};
-      const cursor = toolsCollection.find(query);
-      const result = (await cursor.toArray()).reverse();
+      const search = req.query.search;
+      const result = (
+        await toolsCollection
+          .find({
+            $or: [{ name: { $regex: `${search}`, $options: "i" } }],
+          })
+          .toArray()
+      ).reverse();
       res.send(result);
     });
 
